@@ -1,24 +1,81 @@
-# README
+### Task
+[Backend challenge](https://www.dropbox.com/s/p04ekckbzb1yj6q/%28Main%29_Backend_3.pdf?dl=0)
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+1) Clone repo
+```
+git clone git@github.com:migalenkom/vending-machine.git
+cd vending-machine
+```
+2) Install gems
+```
+bundle install
+```
+3) Prepare DB
+```
+rake db:create
+rake db:migrate
+rake db:seed
+```
+4) run the server
+```
+rails s
+```
+5) run tests
+```
+rspec
 
-Things you may want to cover:
+```
 
-* Ruby version
+6) Request examples
 
-* System dependencies
+create user no auth required
+```
+curl --location --request POST 'http://localhost:3000/api/v1/users' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "user": {
+        "username": "test",
+        "password": "test",
+        "role": "seller"
+    }
+}'
+```
+add deposit
 
-* Configuration
+```
+ curl -u test:test --location --request PUT 'http://localhost:3000/api/v1/users/deposit' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "coin": 100
+}'
+```
 
-* Database creation
+user profile
 
-* Database initialization
+```
+curl -u test:test --location --request GET 'http://localhost:3000/api/v1/users/profile'
+```
 
-* How to run the test suite
+create product
 
-* Services (job queues, cache servers, search engines, etc.)
+```
+curl -u test:test --location --request POST 'http://localhost:3000/api/v1/products' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "product": {
+        "name": "Pencil",
+        "cost": 5,
+        "amount": 100
+    }
+}'
+```
 
-* Deployment instructions
+buy product
 
-* ...
+```
+curl -u test:test --location --request POST 'http://localhost:3000/api/v1/products/1/buy' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "amount" : 3
+}'
+```
