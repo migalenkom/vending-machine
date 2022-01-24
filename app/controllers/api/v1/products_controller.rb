@@ -3,7 +3,7 @@
 # CRUD controller for Products
 class Api::V1::ProductsController < ApplicationController
   def index
-    products = Product.all.limit(params[:limit] || 10).offset(params[:offset] || 0)
+    products = Product.all.includes(:seller).limit(params[:limit] || 10).offset(params[:offset] || 0)
     render json: products, each_serializer: ProductSerializer
   end
 
@@ -12,7 +12,7 @@ class Api::V1::ProductsController < ApplicationController
     if product.save
       render json: product, serializer: ProductSerializer, status: :created
     else
-      render status: :bad_request, json: { error: product.errors.full_messages }
+      error!(product.errors.full_messages, :bad_request)
     end
   end
 
@@ -20,7 +20,7 @@ class Api::V1::ProductsController < ApplicationController
     if current_resource.update(product_params)
       render json: current_resource, serializer: ProductSerializer
     else
-      render status: :bad_request, json: { error: current_resource.errors.full_messages }
+      error!(product.errors.full_messages, :bad_request)
     end
   end
 
@@ -34,11 +34,13 @@ class Api::V1::ProductsController < ApplicationController
   end
 
   def buy
-    purchse = Purchase.new(product: current_resource, user: current_user,
-                           amount: params[:amount], price: current_resource.cost)
-    return render status: :bad_request, json: { error: purchse.errors.full_messages } unless purchse.save
+    purchse = Purchase.new(product: current_resource, user: current_user, amount: params[:amount])
 
-    render json: { product: current_resource.name, total: purchse.total, change: current_user.change_coins }
+    if purchse.save
+      render json: purchse, serializer: PurchaseSerializer
+    else
+      error!(purchse.errors.full_messages, :bad_request)
+    end
   end
 
   private
@@ -48,8 +50,6 @@ class Api::V1::ProductsController < ApplicationController
   end
 
   def current_resource
-    return unless params[:id]
-
-    @current_resource ||= Product.find(params[:id])
+    @current_resource ||= Product.find(params[:id]) if params[:id]
   end
 end

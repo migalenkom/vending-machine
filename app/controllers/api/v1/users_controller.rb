@@ -14,7 +14,7 @@ class Api::V1::UsersController < ApplicationController
     if user.save
       render status: :created, json: user, serializer: UserSerializer
     else
-      render status: :bad_request, json: { error: user.errors.full_messages }
+      error!(current_user.errors.full_messages, :bad_request)
     end
   end
 
@@ -23,10 +23,10 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def deposit
-    return wrong_coin! unless User::COINS.include?(params[:coin].to_i)
+    return error!('Wrong coin') unless User::COINS.include?(params[:coin].to_i)
 
     current_user.increment!(:deposit, params[:coin].to_i)
-    render json: { deposit: current_user.deposit }
+    render json: current_user, serializer: UserSerializer
   end
 
   def reset
@@ -35,10 +35,10 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def update
-    if current_user.update(password: user_params[:password])
+    if current_user.update(user_params)
       render json: current_user, serializer: UserSerializer
     else
-      render status: :bad_request, json: { error: current_user.errors.full_messages }
+      error!(current_user.errors.full_messages, :bad_request)
     end
   end
 
@@ -49,17 +49,13 @@ class Api::V1::UsersController < ApplicationController
 
   private
 
-  def current_resource
-    current_user
-  end
+  alias current_resource current_user
 
-  def wrong_coin!
-    render json: 'Wrong coin', status: :unprocessable_entity
+  def error!(errors, status: :unprocessable_entity)
+    render json: { errors: errors }, status: status
   end
 
   def user_params
     params.require(:user).permit(:username, :password, :role)
-  rescue ActionController::ParameterMissing
-    render json: 'Missing user parameter', status: :unprocessable_entity
   end
 end

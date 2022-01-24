@@ -2,6 +2,7 @@ class Purchase < ApplicationRecord
   belongs_to :user
   belongs_to :product
 
+  before_validation :set_price
   validates_numericality_of :amount, greater_than: 0
   validates_numericality_of :price, greater_than: 0
   validate :check_deposit
@@ -32,5 +33,9 @@ class Purchase < ApplicationRecord
 
   def charge_product_amount
     product.increment!(:amount, -1 * amount)
+  end
+
+  def set_price
+    self.price = product.cost || 0
   end
 end

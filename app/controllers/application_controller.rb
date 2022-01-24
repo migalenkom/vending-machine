@@ -3,32 +3,36 @@
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Basic::ControllerMethods
   before_action :authorise!
-  delegate :allow?, to: :current_permission
 
-  rescue_from 'ActiveRecord::RecordNotFound' do |_exception|
-    not_found!
+  rescue_from 'ActiveRecord::RecordNotFound' do |exception|
+    error!(exception.message, :not_found)
   end
 
-  def not_found!
-    render json: 'Not found', status: :not_found
+  rescue_from ActionController::ParameterMissing do |exception|
+    error!(exception.message)
   end
 
   private
 
+  delegate :allow?, to: :current_permission
+  attr_reader :current_user
+
+  def error!(errors, status = :unprocessable_entity)
+    render json: errors, status: status
+  end
+
   def authorise!
     authenticate_or_request_with_http_basic do |username, password|
-      return render status: :unauthorized unless current_user(username)
+      @current_user ||= User.find_by(username: username)
+      return render status: :unauthorized unless current_user
 
       authenticated = current_user.authenticate(password)
-      return render status: :forbidden unless current_permission.allow?(controller_name, action_name, current_resource)
+      unless current_permission.allow?(controller_name, action_name, current_resource)
+        return error!('No access', :forbidden)
+      end
 
       authenticated
     end
-  end
-
-  def current_user(username = nil)
-    @current_user ||= User.find_by(username: username)
-    @current_user
   end
 
   def current_permission
@@ -36,7 +40,5 @@ class ApplicationController < ActionController::API
   end
 
   # This gets overriden in each controller
-  def current_resource
-    nil
-  end
+  def current_resource; end
 end

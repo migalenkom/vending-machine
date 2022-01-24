@@ -1,3 +1,3 @@
-class UserShortSerializer < ActiveModel::Serializer
-  attributes :id, :username
+class UserShortSerializer < BaseSerializer
+  attributes :username
 end
