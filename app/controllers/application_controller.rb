@@ -27,9 +27,7 @@ class ApplicationController < ActionController::API
       return render status: :unauthorized unless current_user
 
       authenticated = current_user.authenticate(password)
-      unless current_permission.allow?(controller_name, action_name, current_resource)
-        return error!('No access', :forbidden)
-      end
+      return error!('No access', :forbidden) unless current_permission.allow?(controller_name, action_name, current_resource)
 
       authenticated
     end

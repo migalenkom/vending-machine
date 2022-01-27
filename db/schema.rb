@@ -19,6 +19,7 @@ ActiveRecord::Schema.define(version: 2022_01_22_104956) do
     t.integer "user_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["name"], name: "index_products_on_name", unique: true
     t.index ["user_id"], name: "index_products_on_user_id"
   end
 
@@ -40,6 +41,7 @@ ActiveRecord::Schema.define(version: 2022_01_22_104956) do
     t.integer "deposit", default: 0
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["username"], name: "index_users_on_username", unique: true
   end
 
   add_foreign_key "products", "users"

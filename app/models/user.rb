@@ -10,7 +10,8 @@ class User < ApplicationRecord
   has_secure_password
   validates :username, uniqueness: true
   validates :password_digest, presence: true
-  validates_inclusion_of :role, in: ROLES
+  validates :role, inclusion: { in: ROLES }
+  has_many :products, inverse_of: :seller
 
   enum role: {
     buyer: 0,
@@ -19,11 +20,10 @@ class User < ApplicationRecord
 
   def change_coins
     remain = deposit
-    COINS.reverse.inject({}) do |result, coin|
+    COINS.reverse.each_with_object({}) do |coin, result|
       count = remain / coin
       result.merge!(coin => count) if count.positive?
       remain = remain % coin
-      result
     end
   end
 end

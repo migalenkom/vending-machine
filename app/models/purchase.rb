@@ -3,8 +3,8 @@ class Purchase < ApplicationRecord
   belongs_to :product
 
   before_validation :set_price
-  validates_numericality_of :amount, greater_than: 0
-  validates_numericality_of :price, greater_than: 0
+  validates :amount, numericality: { greater_than: 0 }
+  validates :price, numericality: { greater_than: 0 }
   validate :check_deposit
   validate :check_product_amount
   after_create :charge_user_deposit, :charge_product_amount

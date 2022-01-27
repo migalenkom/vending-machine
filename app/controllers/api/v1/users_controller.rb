@@ -14,7 +14,7 @@ class Api::V1::UsersController < ApplicationController
     if user.save
       render status: :created, json: user, serializer: UserSerializer
     else
-      error!(current_user.errors.full_messages, :bad_request)
+      error!(user.errors.full_messages, :bad_request)
     end
   end
 
@@ -50,10 +50,6 @@ class Api::V1::UsersController < ApplicationController
   private
 
   alias current_resource current_user
-
-  def error!(errors, status: :unprocessable_entity)
-    render json: { errors: errors }, status: status
-  end
 
   def user_params
     params.require(:user).permit(:username, :password, :role)

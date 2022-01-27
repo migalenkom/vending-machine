@@ -3,7 +3,7 @@ class CreateProducts < ActiveRecord::Migration[6.1]
     create_table :products do |t|
       t.integer :amount
       t.integer :cost
-      t.string :name
+      t.string :name, index: { unique: true }
       t.belongs_to :user, null: false, foreign_key: true
 
       t.timestamps

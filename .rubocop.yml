@@ -1,1 +1,40 @@
 inherit_from: .rubocop_todo.yml
+
+require:
+  - rubocop-rails
+
+AllCops:
+  TargetRubyVersion:               3.0
+  NewCops:                         enable
+  Exclude:
+    - config/**/*
+    - vendor/**/*
+    - tmp/**/*
+    - bin/**/*
+    - spec/**/*
+    - db/**/*
+
+Layout/LineLength:
+  Enabled:                         false
+
+Style/FrozenStringLiteralComment:
+  Enabled:                         false
+
+Rails/HasManyOrHasOneDependent:
+  Enabled:                         false
+
+Rails/SkipsModelValidations:
+  Enabled:                         false
+
+Style/ClassAndModuleChildren:
+  Enabled:                         false
+
+Style/Documentation:
+  Enabled:                         false
+
+Rails/UnknownEnv:
+  Environments:
+    - production
+    - development
+    - test
+    - staging

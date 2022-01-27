@@ -5,9 +5,9 @@ class Product < ApplicationRecord
   # filed :cost
   # filed :name
 
-  belongs_to :seller, class_name: 'User', foreign_key: :user_id
+  belongs_to :seller, class_name: 'User', foreign_key: :user_id, inverse_of: :products
   validates :name, uniqueness: true, presence: true
-  validates_numericality_of :amount, greater_than_or_equal_to: 0
+  validates :amount, numericality: { greater_than_or_equal_to: 0 }
   validate :check_cost
 
   private
